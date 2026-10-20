@@ -12,7 +12,7 @@ Credit for the original project, web interface, and the foundation on which this
 port is built belongs to **ESPARGOS and its contributors**.
 
 Credit for figuring out how to make raw I/Q capture work on the **ESP8266 in
-this project** belongs to **Guillaume**, the creator of this port. The rest of
+this project** belongs to **kaboom748**, the creator of this port. The rest of
 the project builds on ESPARGOS's work, with the adaptations needed to connect
 the ESP8266 firmware to the browser. This is an independent port.
 
