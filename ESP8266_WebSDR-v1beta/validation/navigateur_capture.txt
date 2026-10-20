@@ -1,0 +1,98 @@
+- generic: VALIDATION MATÉRIELLE — USB réel sur la VM, relais HTTP de test. Le HTML livré utilise WebSerial directement.
+- banner:
+  - link "ESPARGOS website":
+    - /url: https://espargos.net/
+    - img "ESPARGOS"
+  - heading "ESP-WebSDR" [level=1]
+  - text: Raw IQ Capture with ESP8266 · USB snapshots
+  - generic: Paused
+  - generic: ESP8266
+  - generic: 115200 baud
+  - button "Disconnect"
+  - button "Connection options":
+- main:
+  - complementary:
+    - text: Center frequency
+    - generic: MHz
+    - spinbutton "Center frequency MHz": "2462"
+    - button "2.442 GHz"
+    - button "5.500 GHz" [disabled]
+    - 'generic "The receiver is zero-IF: the LO sits at 0 Hz with a DC/LO-leakage spike. Offset LO keeps the tuned frequency away from it."':
+      - text: 0 Hz (zero-IF)
+      - combobox "0 Hz (zero-IF)":
+        - option "show as is" [selected]
+        - option "fill DC bins"
+        - option "offset LO (signal off 0 Hz)"
+    - text: RX gain mode
+    - group "RX gain mode":
+      - button "AGC" [disabled]
+      - button "Manual" [pressed]
+    - text: Manual gain index
+    - status "Manual gain index 0": 5 / 29
+    - slider: "5"
+    - paragraph: Manual · index 5
+    - text: Sample rate / nominal span
+    - combobox "Sample rate / nominal span":
+      - option "40 MS/s · 40 MHz" [selected]
+    - group "Capture mode":
+      - generic: Capture mode
+      - button "I/Q Snapshots" [pressed]
+      - text: FFT bins
+      - combobox "FFT bins":
+        - option "512"
+        - option "1024"
+        - option "2048" [selected]
+      - text: I/Q
+      - combobox "I/Q":
+        - option "10 + 10 bits" [selected]
+    - generic: Display
+    - generic "Relative to signed 10-bit counts / 512; not calibrated RF power.":
+      - text: Floor
+      - status "Floor -100": −100 dBFS10
+      - slider: "-100"
+    - text: Range
+    - status "Range 80": 80 dB
+    - slider: "80"
+    - text: Trace averaging
+    - combobox "Trace averaging":
+      - option "Off"
+      - option "Short" [selected]
+      - option "Medium"
+      - option "High"
+    - checkbox "Max hold" [checked]
+    - text: Max hold
+    - checkbox "Auto scale"
+    - text: Auto scale
+    - button "Resume" [active]
+    - button "Clear"
+  - generic: Power spectrum
+  - generic "Received power spectrum"
+  - 'generic "Frequency axis: wheel to zoom, drag to pan, double-click for full span"'
+  - generic: Start 2.442000 GHz
+  - generic: Center 2.462000 GHz
+  - generic: Span 40.000 MHz
+  - generic: Stop 2.482000 GHz
+  - generic: RBW 28.1 kHz
+  - generic: Bins 2048
+  - generic: Ref -20 dBFS10
+  - generic: Div 20 dB
+  - generic: Det average
+  - generic: Acq 0.051 ms burst
+  - generic: Mode snapshots with gaps
+  - 'generic "Drag: spectrum / waterfall height · double-click: default"'
+  - generic "One row per received snapshot; gaps between acquisitions are not a continuous time axis.": Waterfall · snapshots
+  - generic: −100 → −20 dBFS10
+  - generic "Received waterfall history"
+  - generic: 1.5 frames/s
+  - generic: 3.1 kS/s delivered
+  - generic: 653.0 ms / capture + transfer
+  - generic: 2454.7734 peak MHz
+  - generic: "CRC OK · #12 · snapshots"
+  - navigation "ESPARGOS upstream source":
+    - generic: ESPARGOS upstream source
+    - link "Original ESPARGOS firmware source":
+      - /url: https://github.com/ESPARGOS/esp-sdr
+      - text: esp-sdr ↗
+    - link "Original ESPARGOS web interface source":
+      - /url: https://github.com/ESPARGOS/esp-web-sdr
+      - text: esp-web-sdr ↗

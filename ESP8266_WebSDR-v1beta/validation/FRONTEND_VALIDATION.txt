@@ -1,0 +1,133 @@
+ESP8266 WebSDR frontend — validation locale
+
+Référence : ESPARGOS/esp-web-sdr
+Commit : 6995ed78915a034be54be68abf986d608d7624c4
+Dossier de développement : work/websdr/frontend/
+Sources intactes dans ce dossier : upstream/
+Sources adaptées dans ce dossier : src/
+Empreintes initiales dans ce dossier : UPSTREAM.json
+
+Commandes depuis work/websdr/frontend/.
+Reconstruction sans réseau ni dépendance tierce :
+  python bundle.py
+Tests de logique et protocole, avec Node.js et ses modules intégrés :
+  node test_frontend.cjs
+Tests du fichier autonome et du déterminisme :
+  python test_bundle.py
+
+Résultat livré :
+  outputs/ESP8266_WebSDR/ESP8266_WebSDR.html
+SHA-256 :
+  14e06c93bd9cbfe1714d9a2fa6903617b2814ea7fbb5468ac6c776d330105faf
+Taille : 270358 octets
+Première tentative et session par défaut : 1000000 bauds (1 Mbit/s UART).
+Logo de l'en-tête : ESPBoOm8266, asset autonome espboom8266-logo.svg.
+SHA-256 du SVG :
+  0f0e08427f6db84e96f3135ecee3b0a76a066129f4c18e63a239aac046e1945f
+
+Vérifications réussies :
+  - CRC32 vecteur de référence 123456789 => cbf43926.
+  - CAP20 signé 10 bits, empaquetage LSB et conjugaison A-jB.
+  - Lecture de réponses et données fragmentées en blocs de 37 octets.
+  - Identification ESP8266 ; rejet d'identités ESP32 et tailles incompatibles.
+  - Négociation INFO/CAPS/TRANSPORT?/LIMITS? ; absence de requête VERSION?.
+  - CAP20 2048 1 ; spectre FFT cohérent avec une porteuse synthétique de test.
+  - Rejet de FFT 4096, 80 MS/s, 8 bits, gain 30 et AGC matériel.
+  - Profil SDK sans TUNEEXT : 2412 à 2462 MHz, pas de 5 MHz ; rejet de 2440.
+  - Profil CAPS TUNEEXT + RANGE 2412 2462 1 : 2440 accepté, pas de 1 MHz.
+  - Aucun RANGE? ni profil fin activé en l'absence de CAPS TUNEEXT.
+  - Borne, pas, aide et validation UI adaptés au profil réellement négocié.
+  - Décalage LO et molette : arrondi sur la grille autorisée ; bornes vérifiées.
+  - Gain MANUAL 0 initial, GAIN? ; changement de gain explicite.
+  - Débits 115200, 1 Mbaud et 2 Mbaud toujours pris en charge.
+  - Première tentative à 1 Mbaud pour un nouveau port ; en cas d'échec,
+    recherche à 2 Mbaud puis 115200. Le firmware démarrant à 1 Mbaud utilise
+    une seule ouverture, sans commande BAUD ni réouverture.
+  - Anciens boots à 2 Mbaud et 115200 : sondage puis passage à 1 Mbaud.
+  - INFO/CAPS/TRANSPORT? courts au débit trouvé ; si nécessaire, BAUD 1000000
+    avant RANGE?, LIMITS? et toute capture. Aucun changement de débit si
+    le port utilise déjà le débit demandé.
+  - Débit choisi mémorisé par objet SerialPort dans cette page (WeakMap).
+    Un autre objet de port, même avec le même VID/PID, reprend 1 Mbaud.
+  - Reconnexion au débit choisi sans reset explicite. Cas de régression :
+    port descendu à 115200, puis reset extérieur à 2 Mbaud ; détection et
+    retour automatique à la préférence 115200 de ce seul port.
+  - Réouverture qui impose toujours 2 Mbaud : erreur et fermeture avant
+    toute requête longue ou capture à un débit non retenu.
+  - Réponse BAUD abîmée : sondage du débit réel, sans rejeu aveugle.
+  - Bouton après erreurs CRC : 2 Mbaud -> 1 Mbaud -> 115200 bauds.
+  - Après 115200 bauds, bouton de réduction masqué ; diagnostic CRC conservé.
+  - Réponses de contrôle abîmées : INFO, CAPS, TRANSPORT?, RANGE?, LIMITS?,
+    FREQ, GAIN MANUAL et GAIN? resynchronisés et retentés au plus trois fois.
+  - ERR explicite du firmware : arrêt immédiat, sans masquer l'erreur.
+  - Timeout GAIN? et trois réponses invalides : reprise bornée, puis Resume
+    possible ; les erreurs de contrôle comptent pour l'aide de réduction UART.
+  - CRC incorrect : rejet, SYNC, diminution du bloc et nouvelle acquisition.
+  - Dernier octet absent : timeout d'inactivité, SYNC et capture suivante valide.
+  - CAP20 2048 fragmenté par paquets de 64 octets espacés de 3 ms : reçu valide.
+  - Détection des rails observés -256/+255, sans faux positif à -255/+254.
+  - Cinq mises à jour UI : seuls 40 MS/s, 10 bits et FFT <= 2048 restent actifs.
+  - ResizeObserver avec dimensions nulles : conservation des anciens canevas.
+  - Dessin avec largeur ou hauteur nulle : aucun createImageData/drawImage
+    invalide, historique préservé ; restauration à 900x380 puis reprise de
+    la cascade testées avec un contexte qui rejette les images de taille zéro.
+  - Aide Arduino locale, sans catalogue ESP32 ni flash depuis la page.
+  - Pied de page : liens attribués explicitement aux sources ESPARGOS originales.
+  - Mêmes identifiants DOM dans le même ordre que le fichier upstream.
+  - style.css et fonts.css identiques octet pour octet à upstream.
+  - Logo ESPARGOS remplacé par le SVG ESPBoOm8266 personnalisé. Les octets
+    incorporés correspondent exactement au nouvel asset local.
+  - Une image de logo et quatre ressources intégrées (logo + trois favicons).
+  - SVG autonome ; aucune référence de ressource externe.
+  - CSS, WOFF2, logo, favicons et trois scripts incorporés dans le HTML.
+  - Ordre et contenu des scripts incorporés vérifiés.
+  - Aucune dépendance d'exécution externe ; CSP connect-src 'none'.
+  - Notices GPL et OFL présentes dans le HTML.
+  - Deux constructions successives donnent exactement les mêmes octets.
+
+Les doubles de port série et de DOM sont uniquement dans test_frontend.cjs.
+Ils ne font pas partie du HTML livré. Aucune simulation de signal n'est
+présente dans le produit.
+
+Limites explicites :
+  Aucun navigateur graphique, port série réel ou matériel n'a été utilisé
+  par ces tests frontend. Les styles, polices et structures DOM sont conservés.
+  L'en-tête affiche désormais le logo ESPBoOm8266 ; les crédits ESPARGOS
+  restent dans le pied de page et les notices. Les tests automatisés
+  ne constituent pas une inspection visuelle du nouveau logo.
+  Contrôle navigateur séparé rapporté par le parent pour le HTML 14e06c… :
+  logo ESPBoOm8266 lisible, aucune erreur JavaScript ; capture conservée dans
+  outputs/ESP8266_WebSDR/validation/interface_ESPBoOm8266.png.
+  Les tests synthétiques vérifient le protocole et le logiciel ; ils ne
+  remplacent pas la qualification matérielle menée séparément.
+  Le changement final du débit par défaut à 1 Mbaud a été vérifié uniquement
+  par tests locaux. Aucune nouvelle réception réelle ni session navigateur
+  n'a été lancée pour cette modification.
+  La modification suivante du logo a été vérifiée par tests ciblés des
+  ressources, identifiants DOM, crédits et assemblage déterministe. Les trois
+  fichiers JavaScript d'exécution sont inchangés ; la suite de protocole
+  déjà réussie n'a pas été rejouée pour cette seule modification visuelle.
+  La capture est ponctuelle : 2048 paires / 40 MHz = 51,2 µs, avec des gaps.
+  dBFS10 signifie une référence numérique counts/512, sans calibration dBm.
+  Une nouvelle page utilise 1 Mbaud ; la préférence d'un ancien objet
+  SerialPort n'est pas stockée globalement par VID/PID ou entre pages.
+  Le bouton de récupération permet de descendre de 1 Mbaud à 115200.
+  Aucune cadence de réception réelle à 1 Mbaud n'est revendiquée par ces tests.
+
+Revue du traitement :
+  CAP20 utilise une échéance de 5 s pour les données, avec 500 ms maximum
+  sans arrivée de données. Le pacing de 3 ms reste très inférieur à ce seuil.
+  Estimation théorique pour les 5120 octets CAP20 en UART 8N1 à 1 Mbaud :
+  51,2 ms sur le fil ; avec 80 pauses de 3 ms, environ 291,2 ms hors petites
+  commandes et surcoûts. Au débit de secours 115200 sans pacing, le minimum
+  sur le fil est de 444,4 ms. Ces calculs ne sont pas des mesures de cadence.
+  RAW? n'est pas utilisé dans le HTML. L'export brut reste un diagnostic
+  firmware indépendant, à lire avec son propre format BIN et son CRC.
+  FFT : Hann, retrait de la moyenne complexe par bloc, moyenne des puissances
+  linéaires des sous-blocs ; le lissage de trace est également en puissance
+  linéaire. Ce n'est pas une FFT cohérente de captures séparées.
+  Le décodeur conserve I=A/512 et Q=-B/512. Porteuses synthétiques à +/-1,25 MHz
+  retrouvées du bon côté avec FFT 512, 1024 et 2048.
+  Mesure indicative Node locale, 300 appels après échauffement : environ
+  0,30 ms (4 FFT 512), 0,51-0,54 ms (2 FFT 1024), 0,95-1,02 ms (1 FFT 2048)
+  par capture de 2048 paires. Cela exclut le rendu graphique du navigateur.

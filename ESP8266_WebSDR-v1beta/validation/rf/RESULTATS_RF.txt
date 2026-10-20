@@ -1,0 +1,93 @@
+Qualification RF réelle — ESP8266 WebSDR v2 — 20 octobre 2026
+
+Les acquisitions ci-dessous sont issues de v2. Le parent a annoncé pour v3
+un changement limité au débit série initial : 115200 au lieu de 2000000,
+afin de supporter une réinitialisation à l'ouverture du pont USB. Les chemins
+I/Q, gain et PLL restent annoncés inchangés. Pas de nouvelle campagne RF v3.
+
+Le déplacement RF fin est observé aux centres testés 2462, 2461, 2460,
+2459 MHz, puis au retour à 2462 MHz. Chaque série conserve 10 blocs forts
+de 2048 points, en CAP20 et RAW, CRC valides et données identiques après
+dépaquetage. STAT est cohérent avec les sommes A/B et l'énergie recomputées ;
+gardes et beyond valent zéro. Gain RX fixé à 5, Fs nominal 40 Méch/s.
+
+TX fixe : canal 11, trames DATA de512octets hors FCS, consigne0dBm/500pps.
+L'émission est toujours bornée à60secondes et renouvelée seulement après OFF.
+La puissance réelle émise n'a pas été mesurée/calibrée.
+
+ACCORD FIN
+Centre RX    Déplacement du motif RF vs référence2462    Corrélation
+2462 MHz      0.000000 MHz                              1.000
+2461 MHz     +1.035156 MHz                              0.845
+2460 MHz     +1.992188 MHz                              0.907
+2459 MHz     +2.988281 MHz                              0.880
+2462 retour   0.000000 MHz                              0.918
+
+Méthode : PSD moyenne de10blocs réellement mesurés, retrait DC et fenêtre Hann.
+On suit le creux spectral RF présent autour de0Hz dans la référence initiale.
+Corrélation normalisée de la PSD logarithmique sur la fenêtre de référence
+[-500,+500]kHz, en recherchant librement tous les décalages de-3.906 à+4.883MHz.
+La consigne du firmware n'intervient pas dans la recherche. Pas FFT19.53125kHz.
+L'écart maximal aux déplacements demandés vaut35.15625kHz, environ1.8bins.
+La recherche globale sur tout le spectre est biaisée par le filtre RX fixe :
+ses valeurs restent archivées dans JSON, mais ne fondent pas cette conclusion.
+Le champ décisif du JSON est fine_tune[].rf_feature_shift.
+
+Indice indépendant : une paire LTF à RX2461 donne une CFO de+1.016063MHz
+en convention A-jB, corrélations0.946 et0.949, répétition0.994. Le SIGNAL
+associé suggère6Mbps/LENGTH516, mais comporte1erreur hard : rejet strict.
+Aucune trame WiFi strictement décodée n'est revendiquée pour cette campagne.
+
+Conclusion limitée : la commande déplace effectivement le signal RF dans
+la bande de base aux centres testés et le retour à2462 rétablit le spectre.
+Ce n'est pas une calibration de fréquence absolue, ni une validation RF
+de chacun des51centres entre2412 et2462MHz, ni un contrôle de bande passante.
+
+GAIN ET SATURATION
+20blocs de512points TX actif par indice ;6blocs TX arrêté par indice.
+Tous les blocs retenus sont valides après contrôles CRC/STAT/gardes.
+Indice     p95 puissance après retrait DC (codes²)    Rails A/B moyens
+0              1131                                   0.000%
+5              3474                                   0.000%
+10            11452                                   0.059%
+15            30889                                   1.167%
+20            61973                                   7.925%
+25            95431                                  26.196%
+29           110904                                  38.018%
+Les indices agissent donc réellement ; les gains élevés écrêtent le signal
+dans cette géométrie. Les rails observés sont-256/+255, sans en déduire une
+nouvelle résolution ADC. Aucun indice n'est converti en dB.
+Les p95 reposent sur20blocs : comparaison pratique, pas étalonnage statistique.
+
+TRANSPORT
+La campagne courte a rejeté3captures de transport et s'est resynchronisée :
+2dans la première série de fréquence,1dans la courbe des gains.
+Les données incomplètes ne sont jamais corrigées ni utilisées dans les figures.
+Le premier essai prolongé à115200 avait déjà rencontré un STAT tronqué.
+115200 reste le débit utilisable ici avec contrôle CRC et reprise, sans garantie
+de zéro perte. Les pertes à1M/2M constatées par le parent ne sont pas résolues.
+
+Test USBFS réel à2Mbaud/PACE0 : CAP128 et RAW128 passent. CAP2048 reçoit5119
+octets sur5120, RAW2048 reçoit8191sur8192. Le SYNC suivant arrive exact et
+n'apporte aucun octet retardé. Pour ce diagnostic seulement, réinsérer0x04
+à l'offset7636 du RAW rétablit le CRC8381212b. Son repacking a le CRC CAP
+attendu7ac0549f ; le CAP reçu correspond exactement à la suppression de0x1f
+à l'offset2832. Il s'agit de pertes internes distinctes, pas d'un bug de packing
+ou du dernier octet retenu. Ces reconstructions ne servent pas aux preuves RF.
+USBFS a confirmé la restitution ch341 sans erreur ; aucun port ne reste pris.
+
+ÉTAT FINAL DE CETTE CAMPAGNE
+TX OFF, sdk_mode0 confirmé. RX115200, fréquence2412, gain0,
+PACE configuré3000µs (effectif0à115200), profil valide.
+Le parent peut ensuite avoir repris les ports pour ses propres tests.
+
+FICHIERS
+resume_rf.json : mesures détaillées, états, rejets et méthode.
+accord_fin_psd.png : superposition des spectres mesurés.
+accord_fin_mesure.png : déplacement du motif RF.
+gain_mesure.png : réponse du gain et saturation.
+rf_evidence.tgz et raw_evidence/ : preuves de transport et captures originales.
+Référence2462 : raw_evidence/v2_rf_reliable_short/strong/fine_0_2462_*.
+Autres séries : raw_evidence/v2_rf_fine_remaining/strong/fine_*.
+Gain : raw_evidence/v2_gain_short/report.json et rx/events.jsonl.
+Scripts reproductibles dans work/websdr/ du dossier de travail.
